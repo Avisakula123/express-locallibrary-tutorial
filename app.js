@@ -1,29 +1,30 @@
-const createError = require('http-errors');
-const express = require('express');
+let createError = require('http-errors');
+let express = require('express');
+let path = require('path');
+let cookieParser = require('cookie-parser');
+let logger = require('morgan');
 const dotenv = require('dotenv');
 
 
+let indexRouter = require('./routes/index');
+let usersRouter = require('./routes/users');
+let catalogRouter = require('./routes/catalog');  //Import routes for "catalog" area of site
+let compression = require('compression');
+let helmet = require('helmet');
 
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
+let app = express();
+dotenv.config({ path: '.env' })
+const { check, validationResult } = require('express-validator');
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
-const catalogRouter = require('./routes/catalog');
-
-const app = express();
-dotenv.config({path: '.env'});
 //Set up mongoose connection
-const mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
-const mongoDB = process.env.ATLAS_URI;
-// const mongoDB = 'mongodb+srv://s538294:Rohith123@cluster0-n9qxh.mongodb.net/local_library?retryWrites=true&w=majority';
-mongoose.connect(mongoDB, {
-useNewUrlParser: true,useUnifiedTopology: true
-});
+let mongoose = require('mongoose');
+const dev_db_url = 'mongodb+srv://cooluser:coolpassword@cluster0-mbdj7.mongodb.net/local_library?retryWrites=true'
+const mongoDB = process.env.MONGODB_URI || dev_db_url;
+mongoose.connect(mongoDB, { useNewUrlParser: true,useUnifiedTopology: true});
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
+//dev_db_url = process.env.ATLAS_URI
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -33,11 +34,13 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(compression()); //Compress all routes
+app.use(helmet());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/catalog', catalogRouter);
+app.use('/catalog', catalogRouter);  // Add catalog routes to middleware chain.
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

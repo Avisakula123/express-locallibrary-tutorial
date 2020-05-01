@@ -1,6 +1,10 @@
 {
-  "name": "express-locallibrary-tutorial-mvcdemo",
+  "name": "express-locallibrary-tutorial",
+  "author": "Rohit Avisakula",
   "version": "0.0.0",
+  "engines": {
+    "node": "13.5.0"
+  },
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
@@ -13,6 +17,7 @@
     "dotenv": "^8.2.0",
     "express": "~4.16.1",
     "express-validator": "^6.4.0",
+    "helmet": "^3.22.0",
     "http-errors": "~1.6.3",
     "moment": "^2.24.0",
     "mongoose": "^5.9.7",
